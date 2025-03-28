@@ -1,64 +1,55 @@
-import requests
-import json
 import tkinter as tk
-from tkinter import ttk, messagebox
-from utils.helpers import fetch_json_data, send_json_data
+from tkinter import messagebox
+from utils.helpers import send_json_data
+import random
+import string
 
-# Helper functions
-def populate_table(tree, data):
-    def clean_value(value):
-        return str(value).strip() if isinstance(value, str) else value
+# Helper function to generate a random string
+def generate_random_string(length=10):
+    """Generate a random string of the specified length."""
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-    for row in tree.get_children():
-        tree.delete(row)
+# Helper function to append status messages
+def append_status_message(message):
+    """Append a status message to the status text box."""
+    status_text.insert(tk.END, message + "\n")
+    status_text.see(tk.END)  # Scroll to the latest message
 
-    if isinstance(data, dict):
-        tree["columns"] = ("Value",)
-        tree.heading("#0", text="Key")
-        tree.column("#0", width=150)
-        tree.heading("Value", text="Value")
-        tree.column("Value", width=250)
-        for key, value in data.items():
-            tree.insert("", "end", text=key, values=(clean_value(value),))
-    elif isinstance(data, list) and data:
-        columns = list(data[0].keys())
-        tree["columns"] = columns
-        for col in columns:
-            tree.heading(col, text=col)
-            tree.column(col, width=150)
-        for item in data:
-            tree.insert("", "end", values=[clean_value(item[col]) for col in columns])
-    else:
-        messagebox.showwarning("Warning", "No tabular data available or invalid JSON.")
-
-def fetch_and_display():
-    url = entry_url.get()
-    data = fetch_json_data(url)
-    if data:
-        populate_table(output_tree, data)
-
+# Function to send data
 def send_data():
     try:
         data = {
-            "A": float(entry_a.get()),
-            "B": float(entry_b.get()),
-            "C": float(entry_c.get()),
-            "TYPE": int(entry_type.get()),
-            "ORIENTATION": bool(var_orientation.get()),
-            "SMALLBOX": bool(var_smallbox.get()),
-            "La": int(entry_la.get()),
-            "Lb": int(entry_lb.get()),
-            "Lc": int(entry_lc.get()),
-            "NAME": entry_name.get()[:254]  # Limit string length to 254 characters
+            "JobID" : 1,
+            "JobName" : entry_name.get(),
+            "A" : float(entry_a.get()),
+            "B" : float(entry_b.get()),
+            "C" : float(entry_c.get()),
+            "BoxType" : int(entry_type.get()),
+            "Orientation" : bool(var_orientation.get()),
+            "Smallbox" : bool(var_smallbox.get()),
+            "La" : int(entry_la.get()),
+            "Lb" : int(entry_lb.get()),
+            "Lc" : int(entry_lc.get()),
+            "Enable" : bool(var_braille.get()),
+            "Chars" : int(entry_chars.get()),
+            "Pos" : int(entry_braille_pos.get()),
+            "Corner" : int(entry_corner.get()),
+            "Flap" : int(entry_flap.get()),
+            "DistanceStart" : int(entry_distance_start.get()),
+            "DistanceHeight" : int(entry_distance_height.get()),
+            "Lines" : int(entry_lines.get()),
+            "EmptyLines" : int(entry_empty_lines.get()),
+            "NumMatrices" : int(entry_num_matrices.get())
         }
         url = entry_url.get()
-        response_data = send_json_data(url, data)
-        if response_data:
-            populate_table(output_tree, response_data)
+        response_message = send_json_data(url, data)
+        append_status_message(response_message)
     except ValueError as e:
-        messagebox.showerror("Error", f"Invalid input: {e}")
+        append_status_message(f"Error: Invalid input - {e}")
+    except Exception as e:
+        append_status_message(f"Error: Request failed - {e}")
 
-# GUI Helper to create labeled entry fields
+# Helper function to create labeled entry fields
 def create_labeled_entry(parent, label_text, default_value, row, column, width=10):
     tk.Label(parent, text=label_text).grid(row=row, column=column, padx=5, pady=5)
     entry = tk.Entry(parent, width=width)
@@ -69,7 +60,7 @@ def create_labeled_entry(parent, label_text, default_value, row, column, width=1
 # Create GUI
 root = tk.Tk()
 root.title("JSON Data Viewer")
-root.geometry("800x600")
+root.geometry("800x1000")
 
 # URL Input
 tk.Label(root, text="URL:").pack(pady=5)
@@ -101,15 +92,32 @@ checkbox_smallbox.grid(row=5, column=1, padx=5, pady=5)
 entry_la = create_labeled_entry(input_frame, "La:", "190", 6, 0)
 entry_lb = create_labeled_entry(input_frame, "Lb:", "150", 7, 0)
 entry_lc = create_labeled_entry(input_frame, "Lc:", "110", 8, 0)
-entry_name = create_labeled_entry(input_frame, "NAME:", "ThomasSuperBox", 9, 0, width=30)
 
-# Buttons
+# Generate a random default value for NAME
+entry_name = create_labeled_entry(input_frame, "NAME:", generate_random_string(), 9, 0, width=30)
+
+# Additional fields
+tk.Label(input_frame, text="Braille:").grid(row=10, column=0, padx=5, pady=5)
+var_braille = tk.IntVar(value=0)
+checkbox_braille = tk.Checkbutton(input_frame, variable=var_braille)
+checkbox_braille.grid(row=10, column=1, padx=5, pady=5)
+
+entry_chars = create_labeled_entry(input_frame, "Chars:", "16", 11, 0)
+entry_braille_pos = create_labeled_entry(input_frame, "BraillePos:", "1", 12, 0)
+entry_corner = create_labeled_entry(input_frame, "Corner:", "1", 13, 0)
+entry_flap = create_labeled_entry(input_frame, "Flap:", "1", 14, 0)
+entry_distance_start = create_labeled_entry(input_frame, "DistanceStart:", "8", 15, 0)
+entry_distance_height = create_labeled_entry(input_frame, "DistanceHeight:", "8", 16, 0)
+entry_lines = create_labeled_entry(input_frame, "Lines:", "2", 17, 0)
+entry_empty_lines = create_labeled_entry(input_frame, "EmptyLines:", "0", 18, 0)
+entry_num_matrices = create_labeled_entry(input_frame, "NumMatrices:", "8", 19, 0)
+
+# Send Data Button
 tk.Button(root, text="Send Data", command=send_data).pack(pady=10)
 
-# Output table
-tk.Label(root, text="Received Data (Table):").pack(pady=5)
-output_tree = ttk.Treeview(root)
-output_tree.pack(expand=True, fill="both", padx=10, pady=10)
-tk.Button(root, text="Fetch Data", command=fetch_and_display).pack(pady=10)
+# Status output field
+tk.Label(root, text="Status Messages:").pack(pady=5)
+status_text = tk.Text(root, wrap="word", height=10, width=80)
+status_text.pack(padx=10, pady=10)
 
 root.mainloop()
