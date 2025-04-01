@@ -19,7 +19,7 @@ def append_status_message(message):
 def send_data():
     try:
         data = {
-            "JobID" : 1,
+            # "JobID" : 1,
             "JobName" : entry_name.get(),
             "A" : float(entry_a.get()),
             "B" : float(entry_b.get()),
@@ -66,7 +66,7 @@ root.geometry("800x1000")
 tk.Label(root, text="URL:").pack(pady=5)
 entry_url = tk.Entry(root, width=50)
 entry_url.pack(pady=5)
-entry_url.insert(0, "http://192.168.250.1:8080/")
+entry_url.insert(0, "http://192.168.250.1:8090/")
 
 # Input fields for sending data
 tk.Label(root, text="Send Data:").pack(pady=5)
