@@ -1,3 +1,5 @@
+qrcode
+Pillow
 requests
 tkinter
 ttk
