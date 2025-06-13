@@ -19,11 +19,11 @@ def generate_qr_code():
     data = collect_input_data()
     global qr_image
     qr_content = ";".join(map(str, [
-        data["A"], data["B"], data["C"], data["BoxType"], data["Orientation"],
-        data["Smallbox"], data["La"], data["Lb"], data["Lc"], data["JobName"],
-        data["Enable"], data["Chars"], data["Pos"], data["Corner"], data["Flap"],
-        data["DistanceStart"], data["DistanceHeight"], data["Lines"], data["EmptyLines"],
-        data["NumMatrices"], data["Sheets"]
+        data["Box"]["A"], data["Box"]["B"], data["Box"]["C"], data["Box"]["BoxType"], data["Box"]["Orientation"],
+        data["Box"]["Smallbox"], data["Box"]["La"], data["Box"]["Lb"], data["Box"]["Lc"], data["JobName"],
+        data["Braille"]["Enable"], data["Braille"]["Chars"], data["Braille"]["Pos"], data["Braille"]["Corner"], data["Braille"]["Flap"],
+        data["Braille"]["DistanceStart"], data["Braille"]["DistanceHeight"], data["Braille"]["Lines"], data["Braille"]["EmptyLines"],
+        data["Braille"]["NumMatrices"], data["Sheets"]
     ]))
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(qr_content)
@@ -53,27 +53,33 @@ def copy_qr_code():
 # Function to collect input data
 def collect_input_data():
     return {
-        "JobName": entry_name.get(),
-        "A": float(entry_a.get()),
-        "B": float(entry_b.get()),
-        "C": float(entry_c.get()),
-        "BoxType": int(entry_type.get()),
-        "Orientation": bool(var_orientation.get()),
-        "Smallbox": bool(var_smallbox.get()),
-        "La": int(entry_la.get()),
-        "Lb": int(entry_lb.get()),
-        "Lc": int(entry_lc.get()),
-        "Enable": bool(var_braille.get()),
-        "Chars": int(entry_chars.get()),
-        "Pos": int(entry_braille_pos.get()),
-        "Corner": int(entry_corner.get()),
-        "Flap": int(entry_flap.get()),
-        "DistanceStart": int(entry_distance_start.get()),
-        "DistanceHeight": int(entry_distance_height.get()),
-        "Lines": int(entry_lines.get()),
-        "EmptyLines": int(entry_empty_lines.get()),
-        "NumMatrices": int(entry_num_matrices.get()),
-        "Sheets": int(entry_sheet.get())
+        "JobName":entry_name.get(),
+        "Sheets":int(entry_sheet.get()),
+        "Box":
+        {
+            "A":float(entry_a.get()),
+            "B":float(entry_b.get()),
+            "C":float(entry_c.get()),
+            "BoxType":int(entry_type.get()),
+            "Orientation":bool(var_orientation.get()),
+            "Smallbox":bool(var_smallbox.get()),
+            "La":int(entry_la.get()),
+            "Lb":int(entry_lb.get()),
+            "Lc":int(entry_lc.get())
+        },
+        "Braille":
+        {
+            "Enable":bool(var_braille.get()),
+            "Chars":int(entry_chars.get()),
+            "Pos":int(entry_braille_pos.get()),
+            "Corner":int(entry_corner.get()),
+            "Flap":int(entry_flap.get()),
+            "DistanceStart":int(entry_distance_start.get()),
+            "DistanceHeight":int(entry_distance_height.get()),
+            "Lines":int(entry_lines.get()),
+            "EmptyLines":int(entry_empty_lines.get()),
+            "NumMatrices":int(entry_num_matrices.get())
+        }
     }
 
 # Function to send data
